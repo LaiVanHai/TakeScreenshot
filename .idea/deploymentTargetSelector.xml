@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-08-04T08:16:13.054240Z">
+        <DropdownSelection timestamp="2024-08-04T09:47:58.578604Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/v.lai/.android/avd/Nexus_7_2012_API_33.avd" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/v.lai/.android/avd/Samsung_API_29.avd" />
             </handle>
           </Target>
         </DropdownSelection>
