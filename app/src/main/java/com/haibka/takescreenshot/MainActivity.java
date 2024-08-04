@@ -1,5 +1,6 @@
 package com.haibka.takescreenshot;
 
+import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.MenuItem;
@@ -28,6 +29,7 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -49,39 +51,39 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imageView;
     private Button buttonCapture;
     private CustomOverlayView overlayView;
+    private WindowManager windowManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        imageView = findViewById(R.id.imageView);
-        buttonCapture = findViewById(R.id.button_capture);
         overlayView = new CustomOverlayView(this);
-        addContentView(overlayView, new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.MATCH_PARENT,
-                RelativeLayout.LayoutParams.MATCH_PARENT
-        ));
+        overlayView.setBackgroundColor(0x77000000);
+        buttonCapture = findViewById(R.id.button_capture);
+        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
-//        buttonCapture.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                startScreenCapture();
-//            }
-//        });
+        buttonCapture.setOnClickListener(v -> startScreenCapture());
+    }
+
+
+    private void startScreenCapture() {
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT
+        );
+
+        windowManager.addView(overlayView, params);
 
         overlayView.setOnSelectionCompleteListener(new CustomOverlayView.OnSelectionCompleteListener() {
             @Override
             public void onSelectionComplete(Rect rect) {
                 captureScreen(rect);
             }
-        });
-//        buttonCapture.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                captureScreen();
-//            }
-//        });
+        }
     }
 
     private void captureScreen(Rect rect) {
@@ -92,14 +94,11 @@ public class MainActivity extends AppCompatActivity {
 
         Bitmap croppedBitmap = Bitmap.createBitmap(bitmap, rect.left, rect.top, rect.width(), rect.height());
         saveBitmap(croppedBitmap);
-    }
 
-    private void startScreenCapture() {
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_HOME);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        startActivityForResult(intent, REQUEST_SCREENSHOT);
+        // Remove overlay view
+        if (overlayView != null) {
+            windowManager.removeView(overlayView);
+        }
     }
 
     @Override
@@ -116,9 +115,12 @@ public class MainActivity extends AppCompatActivity {
         Bitmap bitmap = Bitmap.createBitmap(rootView.getDrawingCache());
         rootView.setDrawingCacheEnabled(false);
 
-        Rect rect = overlayView.getRect();
-        Bitmap croppedBitmap = Bitmap.createBitmap(bitmap, rect.left, rect.top, rect.width(), rect.height());
-        saveBitmap(croppedBitmap);
+        saveBitmap(bitmap);
+
+        // Remove overlay view
+        if (overlayView != null) {
+            windowManager.removeView(overlayView);
+        }
     }
 
 
@@ -155,23 +157,6 @@ public class MainActivity extends AppCompatActivity {
         Uri uri = getImageUri(this, bitmap);
         ClipData clip = ClipData.newUri(getContentResolver(), "Screenshot", uri);
         clipboard.setPrimaryClip(clip);
-//
-//        File file = new File(Environment.getExternalStorageDirectory() + "/screenshot.png");
-//        FileOutputStream outputStream = null;
-//        try {
-//            outputStream = new FileOutputStream(file);
-//            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-//            outputStream.flush();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            if (outputStream != null) {
-//                try {
-//                    outputStream.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
+
     }
 }
