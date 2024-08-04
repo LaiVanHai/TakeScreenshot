@@ -81,9 +81,10 @@ public class MainActivity extends AppCompatActivity {
         overlayView.setOnSelectionCompleteListener(new CustomOverlayView.OnSelectionCompleteListener() {
             @Override
             public void onSelectionComplete(Rect rect) {
-                captureScreen(rect);
+//                captureScreen(rect);
+                captureScreen();
             }
-        }
+        });
     }
 
     private void captureScreen(Rect rect) {
